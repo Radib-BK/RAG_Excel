@@ -200,17 +200,37 @@ class RAGQueryEngine:
         if not chunks:
             return 0.0
         
-        # Simple confidence calculation based on similarity scores
+        # Define stricter relevance threshold to filter out irrelevant content
+        RELEVANCE_THRESHOLD = 0.5
+        
+        # Get similarity scores and filter by relevance
         scores = [chunk.get('similarity_score', 0.0) for chunk in chunks]
+        relevant_scores = [score for score in scores if score >= RELEVANCE_THRESHOLD]
         
-        if scores:
-            # Average of top scores with some normalization
-            avg_score = sum(scores) / len(scores)
-            # Normalize to 0-1 range (assuming similarity scores are already normalized)
-            confidence = min(1.0, max(0.0, avg_score))
-            return confidence
+        if not relevant_scores:
+            # If no scores meet high threshold, use lower threshold but lower confidence
+            LOWER_THRESHOLD = 0.35
+            relevant_scores = [score for score in scores if score >= LOWER_THRESHOLD]
+            if not relevant_scores:
+                return 0.0
         
-        return 0.0
+        # Calculate confidence based on top relevant scores
+        if len(relevant_scores) >= 2:
+            # Use weighted average of top scores
+            top_score = relevant_scores[0]
+            second_score = relevant_scores[1] if len(relevant_scores) > 1 else relevant_scores[0]
+            
+            # Weight towards top score but consider consistency
+            weighted_score = (top_score * 0.7) + (second_score * 0.3)
+            
+            # Apply conservative scaling to prevent overconfidence
+            # Scale down scores to realistic confidence range (0.2-0.7)
+            confidence = 0.2 + (weighted_score * 0.5)
+        else:
+            # Single relevant result - be more conservative
+            confidence = 0.2 + (relevant_scores[0] * 0.3)
+        
+        return min(0.7, max(0.0, confidence))
     
     async def query(self, question: str, image_base64: Optional[str] = None) -> Dict[str, Any]:
         """
@@ -254,8 +274,24 @@ class RAGQueryEngine:
             # Generate answer
             answer = self._generate_answer(prompt)
             
-            # Extract source files
-            source_files = list(set([chunk.get('source', 'Unknown') for chunk in retrieved_chunks]))
+            # Extract source files only from relevant chunks (above threshold)
+            # Use stricter threshold for source attribution
+            RELEVANCE_THRESHOLD = 0.5
+            relevant_chunks = [chunk for chunk in retrieved_chunks 
+                             if chunk.get('similarity_score', 0.0) >= RELEVANCE_THRESHOLD]
+            
+            # If no chunks meet high threshold, use lower threshold but still filter
+            if not relevant_chunks:
+                LOWER_THRESHOLD = 0.35
+                relevant_chunks = [chunk for chunk in retrieved_chunks 
+                                 if chunk.get('similarity_score', 0.0) >= LOWER_THRESHOLD]
+            
+            # Get unique source files from relevant chunks only
+            if relevant_chunks:
+                source_files = list(set([chunk.get('source', 'Unknown') for chunk in relevant_chunks]))
+            else:
+                # If no chunks meet threshold, include top chunk to avoid empty sources
+                source_files = [retrieved_chunks[0].get('source', 'Unknown')] if retrieved_chunks else []
             
             # Calculate confidence score
             confidence_score = self._calculate_confidence_score(complete_query, retrieved_chunks)

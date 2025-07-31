@@ -372,7 +372,18 @@ class EmbeddingManager:
             for i, (score, idx) in enumerate(zip(scores[0], indices[0])):
                 if idx >= 0 and idx < len(self.metadata):  # Valid index
                     result = self.metadata[idx].copy()
-                    result['similarity_score'] = float(score)
+                    
+                    # Convert FAISS scores to proper similarity scores
+                    if self.vector_metric == 'cosine':
+                        # For HNSW with cosine (IP), score is already similarity (0-1)
+                        # But we need to ensure it's in proper range
+                        similarity_score = max(0.0, min(1.0, float(score)))
+                    else:  # L2 distance
+                        # Convert L2 distance to similarity (higher distance = lower similarity)
+                        # Use exponential decay: similarity = exp(-distance/scale)
+                        similarity_score = max(0.0, min(1.0, 1.0 / (1.0 + float(score))))
+                    
+                    result['similarity_score'] = similarity_score
                     result['rank'] = len(results) + 1
                     
                     # Apply filters if provided

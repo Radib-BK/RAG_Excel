@@ -186,7 +186,14 @@ def create_rag_prompt(question: str, context: str) -> str:
     Returns:
         Formatted prompt for the LLM
     """
-    prompt = f"""Use the following context to answer the question. If the answer cannot be found in the context, say "I don't have enough information to answer this question based on the provided documents."
+    prompt = f"""You are a helpful assistant. Use the following context to answer the user's question accurately and concisely.
+
+Instructions:
+- If the question asks for categories, types, or unique values, provide only the distinct items without duplicates
+- For table data, analyze the content carefully to extract the specific information requested
+- If asking for unique categories from a table, list only the category names (e.g., "Fruits, Bakery, Dairy") not item-category pairs
+- Be precise and direct in your answer
+- If the answer cannot be found in the context, say "I don't have enough information to answer this question based on the provided documents."
 
 Context:
 {context}
