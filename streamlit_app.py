@@ -78,13 +78,16 @@ def main():
     st.title("🤖 RAG Chatbot")
     st.markdown("Upload documents and ask questions about their content!")
     
-    # Check API health
-    if not check_api_health():
-        st.error("❌ API is not running. Please start the FastAPI server first.")
-        st.code("python main.py", language="bash")
-        return
-    
-    st.success("✅ API is running")
+    # Check API health in a container
+    with st.container():
+        col_status, col_empty = st.columns([1, 2])
+        with col_status:
+            if not check_api_health():
+                st.error("❌ API not running")
+                st.code("python main.py", language="bash")
+                return
+            else:
+                st.success("✅ API is running")
     
     # Sidebar for file upload and stats
     with st.sidebar:
@@ -131,6 +134,38 @@ def main():
     
     # Main chat interface
     col1, col2 = st.columns([2, 1])
+    
+    with col2:
+        st.header("ℹ️ How to Use")
+        st.markdown("""
+        1. **Upload Documents**: Use the sidebar to upload your documents
+        2. **Ask Questions**: Type your question in the text area
+        3. **Optional OCR**: Upload an image to extract text from it
+        4. **Get Answers**: Click "Ask Question" to get AI-powered responses
+        
+        **Supported Formats:**
+        - 📄 PDF files
+        - 📝 Word documents (DOCX)
+        - 📃 Text files (TXT)
+        - 📊 CSV files
+        - 🗄️ SQLite databases (DB)
+        - 🖼️ Images (JPG, PNG) with OCR
+        
+        **Tips:**
+        - Upload multiple documents for better context
+        - Ask specific questions for better results
+        - Use images to extract text via OCR
+        """)
+        
+        st.divider()
+        
+        st.header("🔧 System Info")
+        st.code(f"API URL: {API_BASE_URL}")
+        
+        # Display current stats
+        stats = get_stats()
+        if "error" not in stats:
+            st.json(stats)
     
     with col1:
         st.header("💬 Ask Questions")
@@ -187,36 +222,6 @@ def main():
                         st.subheader("📚 Sources")
                         for source in result['source_files']:
                             st.write(f"• {source}")
-    
-    with col2:
-        st.header("ℹ️ How to Use")
-        st.markdown("""
-        1. **Upload Documents**: Use the sidebar to upload your documents
-        2. **Ask Questions**: Type your question in the text area
-        3. **Optional OCR**: Upload an image to extract text from it
-        4. **Get Answers**: Click "Ask Question" to get AI-powered responses
-        
-        **Supported Formats:**
-        - 📄 PDF files
-        - 📝 Word documents (DOCX)
-        - 📃 Text files (TXT)
-        - 📊 CSV files
-        - 🗄️ SQLite databases (DB)
-        - 🖼️ Images (JPG, PNG) with OCR
-        
-        **Tips:**
-        - Upload multiple documents for better context
-        - Ask specific questions for better results
-        - Use images to extract text via OCR
-        """)
-        
-        st.header("🔧 System Info")
-        st.code(f"API URL: {API_BASE_URL}")
-        
-        # Display current stats
-        stats = get_stats()
-        if "error" not in stats:
-            st.json(stats)
 
 if __name__ == "__main__":
     main()

@@ -60,6 +60,16 @@ python install.py
 
 #### **Step 4: Start the Application**
 
+**Option A: Automatic Launcher (Recommended):**
+```cmd
+cd RAG_Excel
+.venv\Scripts\activate
+python run.py
+```
+*This automatically starts both FastAPI backend and Streamlit frontend*
+
+**Option B: Manual (2 Terminals):**
+
 **Terminal 1 (FastAPI Backend):**
 ```cmd
 cd RAG_Excel
@@ -259,6 +269,7 @@ python install.py
 RAG_Excel/
 ├── main.py              # FastAPI backend server
 ├── streamlit_app.py     # Web interface
+├── run.py              # Automatic launcher (starts both backend & frontend)
 ├── ingestion.py         # Document processing
 ├── embeddings.py        # Vector embeddings & FAISS
 ├── query.py            # RAG engine & LLM
@@ -327,20 +338,22 @@ Modify `config.py` to use different AI models:
    - Download from [Tesseract GitHub](https://github.com/UB-Mannheim/tesseract/wiki)
    - Add `C:\Program Files\Tesseract-OCR` to PATH
 
-4. **Start the Application (2 Terminals):**
-   
-   **Terminal 1 - API Server:**
+4. **Start the Application:**
+
+   **Easy Way (1 Command):**
    ```cmd
    cd RAG_Excel
    .venv\Scripts\activate
-   python main.py
+   python run.py
    ```
    
-   **Terminal 2 - Web Interface:**
+   **Manual Way (2 Terminals):**
    ```cmd
-   cd RAG_Excel  
-   .venv\Scripts\activate
-   streamlit run streamlit_app.py
+   # Terminal 1 - API Server
+   cd RAG_Excel && .venv\Scripts\activate && python main.py
+   
+   # Terminal 2 - Web Interface  
+   cd RAG_Excel && .venv\Scripts\activate && streamlit run streamlit_app.py
    ```
 
 5. **Access & Test:**
@@ -348,5 +361,5 @@ Modify `config.py` to use different AI models:
    - API: http://localhost:8000
    - Test: `python test_api.py` (in Terminal 3)
 
-**Start by running `python main.py` and uploading your first document!** 🚀
+**Start by running `python run.py` and then access http://localhost:8501 to upload your first document!** 🚀
 
