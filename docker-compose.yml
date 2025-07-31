@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  # RAG Chatbot API (CPU-optimized)
+  rag-chatbot:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./vector_store:/app/vector_store
+      - ./sample_files:/app/sample_files
+    environment:
+      - DEVICE=cpu
+      - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN}
+      - MODEL_NAME=TinyLlama/TinyLlama-1.1B-Chat-v1.0
+      - EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+      - CHUNK_SIZE=512
+      - CHUNK_OVERLAP=100
+      - TOP_K_RESULTS=5
+      - MAX_TOKENS=150
+      - TORCH_DTYPE=float32
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Streamlit Web Interface (Optional)
+  streamlit-frontend:
+    build: .
+    ports:
+      - "8501:8501"
+    depends_on:
+      - rag-chatbot
+    command: ["streamlit", "run", "streamlit_app.py", "--server.address", "0.0.0.0"]
+    environment:
+      - API_BASE_URL=http://rag-chatbot:8000
+    restart: unless-stopped
+    profiles:
+      - frontend  # Only start when explicitly requested

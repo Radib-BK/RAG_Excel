@@ -1,0 +1,32 @@
+
+    RAG Chatbot Documentation
+    
+    This is a Retrieval-Augmented Generation (RAG) chatbot system built with FastAPI.
+    
+    Key Features:
+    - Multi-format document support (PDF, DOCX, TXT, CSV, DB, images)
+    - OCR capabilities for image text extraction
+    - Vector similarity search using FAISS
+    - Local LLM for answer generation
+    - Memory optimized for RTX 2060 GPU
+    
+    Pricing Information:
+    - Basic plan: $10/month
+    - Pro plan: $25/month  
+    - Enterprise: Custom pricing
+    
+    Technical Specifications:
+    - Uses TinyLlama-1.1B-Chat model
+    - Embedding model: all-MiniLM-L6-v2
+    - Chunk size: 512 tokens with 100 token overlap
+    - Vector store: FAISS with cosine similarity
+    
+    Installation:
+    1. Install dependencies from requirements.txt
+    2. Set up Tesseract OCR
+    3. Configure environment variables
+    4. Run the FastAPI server
+    
+    The system can handle various document types and provides contextual answers
+    based on the uploaded content.
+    
