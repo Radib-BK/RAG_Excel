@@ -8,11 +8,14 @@ A powerful Retrieval-Augmented Generation (RAG) chatbot that can process multipl
 
 - 📄 **Multi-format Support**: PDF, DOCX, TXT, CSV, SQLite DB, JPG, PNG
 - 🔍 **OCR Text Extraction**: Extract text from images using Tesseract
+- 🧠 **Semantic Chunking**: LangChain-style recursive text splitting preserves document structure
+- 📊 **Enhanced Table Processing**: Auto-detection and structured extraction of tables from PDFs
+- 🎯 **Accurate Tokenization**: Real tokenizer integration for precise token counting
 - 🧠 **Local AI Models**: TinyLlama LLM + SentenceTransformers embeddings
 - ⚡ **GPU Optimized**: RTX 2060 ready with 4-bit quantization
 - 🌐 **Web Interface**: FastAPI backend + Streamlit frontend
 - 🐳 **Docker Ready**: Simple containerized deployment
-- 💾 **Persistent Storage**: FAISS vector database for fast retrieval
+- 💾 **Persistent Storage**: FAISS vector database with rich metadata
 
 ## 🚀 Quick Start Guide
 
@@ -154,6 +157,9 @@ cd RAG_Excel
 .venv\Scripts\activate
 # Make sure main.py is running in Terminal 1, then:
 python test_api.py
+
+# Test enhanced document processing features:
+python test_enhanced_ingestion.py
 ```
 
 Expected output:
@@ -163,6 +169,11 @@ Expected output:
 ✅ Upload successful - Chunks created: 2
 ✅ Query successful - Answer: This is a Retrieval-Augmented Generation...
 🎉 All tests completed!
+
+🚀 Enhanced RAG Ingestion Test Suite
+✅ Created semantic chunks with enhanced metadata
+📊 Table detection and structured extraction working
+🎉 All enhanced features validated!
 ```
 
 ## 📖 How to Use
@@ -304,24 +315,43 @@ python install.py
 
 ```
 RAG_Excel/
-├── main.py              # FastAPI backend server
-├── streamlit_app.py     # Web interface
-├── run.py              # Automatic launcher (starts both backend & frontend)
-├── ingestion.py         # Document processing
-├── embeddings.py        # Vector embeddings & FAISS
-├── query.py            # RAG engine & LLM
-├── utils.py            # OCR utilities
-├── config.py           # Configuration management
-├── install.py          # Automated installation script
-├── test_api.py         # Test suite
-├── requirements.txt    # Python dependencies
-├── Dockerfile          # Docker configuration
-├── docker-compose.yml  # Multi-service setup
-└── README.md           # This guide
+├── main.py                      # FastAPI backend server
+├── streamlit_app.py            # Web interface
+├── run.py                      # Automatic launcher (starts both backend & frontend)
+├── ingestion.py                # Enhanced document processing with semantic chunking
+├── embeddings.py               # Vector embeddings & FAISS
+├── query.py                    # RAG engine & LLM
+├── utils.py                    # OCR utilities
+├── config.py                   # Configuration management
+├── install.py                  # Automated installation script
+├── test_api.py                 # API test suite
+├── test_enhanced_ingestion.py  # Enhanced processing test suite
+├── requirements.txt            # Python dependencies
+├── Dockerfile                  # Docker configuration
+├── docker-compose.yml          # Multi-service setup
+├── README.md                   # This guide
+└── ENHANCED_FEATURES.md        # New features documentation
 ```
 
 
 ## 🔄 Advanced Usage
+
+### **Enhanced Document Processing**
+The system now features **semantic chunking** that preserves document structure:
+```python
+# Automatically detects and preserves:
+# - Paragraph boundaries
+# - Table structures  
+# - Page numbers
+# - Content types (text, tables, figures)
+```
+
+### **Table-Aware Querying**
+Ask specific questions about tables in your documents:
+```
+"What data is in the sales table?"
+"Show me the pricing information from the product table"
+```
 
 ### **Multiple Documents**
 Upload multiple files - the system will search across all documents:
