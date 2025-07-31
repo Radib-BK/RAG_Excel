@@ -1,8 +1,8 @@
 version: '3.8'
 
 services:
-  # RAG Chatbot API (CPU-optimized)
-  rag-chatbot:
+  # RAG Excel API (CPU-optimized)
+  rag-excel:
     build: .
     ports:
       - "8000:8000"
@@ -32,10 +32,10 @@ services:
     ports:
       - "8501:8501"
     depends_on:
-      - rag-chatbot
+      - rag-excel
     command: ["streamlit", "run", "streamlit_app.py", "--server.address", "0.0.0.0"]
     environment:
-      - API_BASE_URL=http://rag-chatbot:8000
+      - API_BASE_URL=http://rag-excel:8000
     restart: unless-stopped
     profiles:
       - frontend  # Only start when explicitly requested

@@ -16,7 +16,14 @@ A powerful Retrieval-Augmented Generation (RAG) chatbot that can process multipl
 
 ## 🚀 Quick Start Guide
 
-### **Method 1: Local Development (Recommended)**
+### **🤔 Which Method Should I Use?**
+
+| Method | Best For | Performance | Setup Complexity |
+|--------|----------|-------------|------------------|
+| **Local Development** | Development, RTX 2060 users | ⚡ Excellent (GPU) | 🟡 Medium |
+| **Docker** | Production, Sharing, Deployment | 🔄 Good (CPU) | 🟢 Easy |
+
+### **Method 1: Local Development (Recommended for GPU Users)**
 
 #### **Step 1: Clone and Setup**
 ```cmd
@@ -99,15 +106,45 @@ streamlit run streamlit_app.py
 echo HUGGINGFACE_TOKEN=your_token_here > .env
 ```
 
-#### **Option A: API Only**
+#### **Option A: Quick Start (Recommended)**
 ```cmd
-docker-compose up --build rag-chatbot
-```
+# API Only
+docker-compose up --build rag-excel
 
-#### **Option B: API + Web Interface**
-```cmd
+# API + Web Interface
 docker-compose --profile frontend up --build
 ```
+
+#### **Option B: Manual Docker Build**
+```cmd
+# Build the Docker image
+docker build -t rag-excel .
+
+# Run API only
+docker run -p 8000:8000 \
+  -v ${PWD}/vector_store:/app/vector_store \
+  -v ${PWD}/sample_files:/app/sample_files \
+  --env-file .env \
+  rag-excel
+
+# Run with Streamlit frontend (requires 2 containers)
+# Terminal 1 - API
+docker run -p 8000:8000 --name rag-api \
+  -v ${PWD}/vector_store:/app/vector_store \
+  -v ${PWD}/sample_files:/app/sample_files \
+  --env-file .env \
+  rag-excel
+
+# Terminal 2 - Streamlit
+docker run -p 8501:8501 --link rag-api \
+  -e API_BASE_URL=http://rag-api:8000 \
+  rag-excel streamlit run streamlit_app.py --server.address 0.0.0.0
+```
+
+#### **Access URLs (Docker):**
+- **API**: http://localhost:8000
+- **Web UI**: http://localhost:8501 (if using frontend profile)
+- **API Docs**: http://localhost:8000/docs
 
 ## 🧪 Test Your Installation
 
@@ -309,7 +346,7 @@ Modify `config.py` to use different AI models:
 
 ## 🎉 Quick Summary - Start to Finish
 
-**Complete setup in 5 minutes:**
+### **🖥️ Local Development (Best Performance):**
 
 1. **Clone & Setup Environment:**
    ```cmd
@@ -339,27 +376,37 @@ Modify `config.py` to use different AI models:
    - Add `C:\Program Files\Tesseract-OCR` to PATH
 
 4. **Start the Application:**
-
-   **Easy Way (1 Command):**
    ```cmd
-   cd RAG_Excel
-   .venv\Scripts\activate
    python run.py
    ```
-   
-   **Manual Way (2 Terminals):**
+
+5. **Access:** http://localhost:8501
+
+### **🐳 Docker Deployment (Easy Setup):**
+
+1. **Clone & Setup:**
    ```cmd
-   # Terminal 1 - API Server
-   cd RAG_Excel && .venv\Scripts\activate && python main.py
-   
-   # Terminal 2 - Web Interface  
-   cd RAG_Excel && .venv\Scripts\activate && streamlit run streamlit_app.py
+   git clone https://github.com/Radib-BK/RAG_Excel.git
+   cd RAG_Excel
+   echo HUGGINGFACE_TOKEN=your_token_here > .env
    ```
 
-5. **Access & Test:**
-   - Web UI: http://localhost:8501
-   - API: http://localhost:8000
-   - Test: `python test_api.py` (in Terminal 3)
+2. **Run with Docker:**
+   ```cmd
+   # API + Web Interface
+   docker-compose --profile frontend up --build
+   
+   # OR API Only
+   docker-compose up --build rag-excel
+   ```
+
+3. **Access:** http://localhost:8501 (frontend) or http://localhost:8000 (API only)
+
+### **🧪 Test Installation:**
+```cmd
+# In a new terminal
+python test_api.py
+```
 
 **Start by running `python run.py` and then access http://localhost:8501 to upload your first document!** 🚀
 
