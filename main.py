@@ -10,6 +10,7 @@ from typing import Optional, List
 import os
 import shutil
 import tempfile
+import time
 from pathlib import Path
 import logging
 
@@ -111,14 +112,11 @@ async def upload_document(file: UploadFile = File(...)):
             tmp_file_path = tmp_file.name
         
         try:
-            # Extract text from document
-            extracted_text = document_processor.extract_text(tmp_file_path, file.filename)
+            # Process document using enhanced pipeline
+            chunks = document_processor.process_document(tmp_file_path, file.filename)
             
-            if not extracted_text.strip():
-                raise HTTPException(status_code=400, detail="No text could be extracted from the document")
-            
-            # Chunk the text
-            chunks = document_processor.chunk_text(extracted_text, file.filename)
+            if not chunks:
+                raise HTTPException(status_code=400, detail="No content could be extracted from the document")
             
             # Generate embeddings and store in vector database
             embedding_manager.add_documents(chunks)

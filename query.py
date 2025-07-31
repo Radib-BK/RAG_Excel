@@ -79,12 +79,12 @@ class RAGQueryEngine:
                 **model_kwargs
             )
             
-            # Create text generation pipeline
+            # Create text generation pipeline (let accelerate handle device placement)
             self.generator = pipeline(
                 "text-generation",
                 model=self.model,
                 tokenizer=self.tokenizer,
-                device=0 if self.device == 'cuda' else -1,
+                # Don't specify device when using accelerate with device_map="auto"
                 return_full_text=False,
                 do_sample=True,
                 temperature=0.7,
@@ -164,7 +164,9 @@ class RAGQueryEngine:
             top_k = int(os.getenv('TOP_K_RESULTS', 5))
         
         try:
-            results = self.embedding_manager.search(query, top_k=top_k)
+            search_response = self.embedding_manager.search(query, top_k=top_k)
+            # Extract results from the new structured response format
+            results = search_response.get('results', []) if isinstance(search_response, dict) else search_response
             logger.info(f"Retrieved {len(results)} chunks for query")
             return results
             

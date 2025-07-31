@@ -2,8 +2,6 @@
 
 A powerful Retrieval-Augmented Generation (RAG) chatbot that can process multiple document types, extract text using OCR, and answer questions using locally hosted AI models. Optimized for RTX 2060 GPUs but works on any hardware.
 
-![RAG Chatbot Demo](screenshot/rag-page.png)
-
 ## ✨ Key Features
 
 - 📄 **Multi-format Support**: PDF, DOCX, TXT, CSV, SQLite DB, JPG, PNG
@@ -19,12 +17,6 @@ A powerful Retrieval-Augmented Generation (RAG) chatbot that can process multipl
 
 ## 🚀 Quick Start Guide
 
-### **🤔 Which Method Should I Use?**
-
-| Method | Best For | Performance | Setup Complexity |
-|--------|----------|-------------|------------------|
-| **Local Development** | Development, RTX 2060 users | ⚡ Excellent (GPU) | 🟡 Medium |
-| **Docker** | Production, Sharing, Deployment | 🔄 Good (CPU) | 🟢 Easy |
 
 ### **Method 1: Local Development (Recommended for GPU Users)**
 
@@ -162,19 +154,6 @@ python test_api.py
 python test_enhanced_ingestion.py
 ```
 
-Expected output:
-```
-🧪 Starting RAG Chatbot API Tests
-✅ API is healthy
-✅ Upload successful - Chunks created: 2
-✅ Query successful - Answer: This is a Retrieval-Augmented Generation...
-🎉 All tests completed!
-
-🚀 Enhanced RAG Ingestion Test Suite
-✅ Created semantic chunks with enhanced metadata
-📊 Table detection and structured extraction working
-🎉 All enhanced features validated!
-```
 
 ## 📖 How to Use
 
@@ -193,7 +172,254 @@ The system will:
 2. Generate contextual answers using AI
 3. Provide source attribution and confidence scores
 
-## 🔧 API Reference
+## � API-Only Usage (Backend Without Frontend)
+
+If you want to use only the RAG API without the Streamlit web interface (for integration into your own applications):
+
+### **Step 1: Start Only the Backend**
+
+```cmd
+cd RAG_Excel
+.venv\Scripts\activate
+
+# Start only the FastAPI backend
+python main.py
+```
+
+**Backend will be available at:** http://localhost:8000
+
+### **Step 2: API Documentation**
+
+Visit the interactive API docs:
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
+
+### **Step 3: Basic API Workflow**
+
+#### **1. Check System Health**
+```bash
+curl -X GET "http://localhost:8000/health"
+```
+
+**Response:**
+```json
+{
+  "status": "healthy",
+  "timestamp": "2025-08-01T10:30:00",
+  "model_loaded": true,
+  "vector_store_ready": true
+}
+```
+
+#### **2. Upload Documents**
+```bash
+# Upload a PDF file
+curl -X POST "http://localhost:8000/upload" \
+  -F "file=@path/to/your/document.pdf"
+
+# Upload multiple files
+curl -X POST "http://localhost:8000/upload" \
+  -F "file=@document1.pdf"
+curl -X POST "http://localhost:8000/upload" \
+  -F "file=@document2.docx"
+```
+
+**Response:**
+```json
+{
+  "message": "Document processed successfully",
+  "file_name": "document.pdf",
+  "chunks_created": 15,
+  "processing_time": 3.2
+}
+```
+
+#### **3. Query Documents**
+```bash
+curl -X POST "http://localhost:8000/query" \
+  -H "Content-Type: application/json" \
+  -d '{"question": "What are the main findings in the report?"}'
+```
+
+**Response:**
+```json
+{
+  "answer": "Based on the uploaded documents, the main findings include...",
+  "source_files": ["document.pdf", "report.docx"],
+  "confidence_score": 0.85,
+  "retrieved_chunks": 5
+}
+```
+
+#### **4. Get Vector Store Statistics**
+```bash
+curl -X GET "http://localhost:8000/stats"
+```
+
+**Response:**
+```json
+{
+  "total_chunks": 150,
+  "total_vectors": 150,
+  "total_documents": 10,
+  "embedding_dimension": 384,
+  "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+  "vector_store_size": 5242880,
+  "last_updated": "2025-08-01T10:25:00"
+}
+```
+
+#### **5. Clear All Documents**
+```bash
+curl -X DELETE "http://localhost:8000/clear"
+```
+
+### **Step 4: Integration Examples**
+
+#### **Python Integration**
+```python
+import requests
+import json
+
+# Initialize API client
+API_BASE = "http://localhost:8000"
+
+# Upload document
+def upload_document(file_path):
+    with open(file_path, 'rb') as f:
+        files = {'file': f}
+        response = requests.post(f"{API_BASE}/upload", files=files)
+    return response.json()
+
+# Query documents
+def query_documents(question):
+    data = {"question": question}
+    response = requests.post(
+        f"{API_BASE}/query", 
+        headers={'Content-Type': 'application/json'},
+        data=json.dumps(data)
+    )
+    return response.json()
+
+# Example usage
+result = upload_document("my_document.pdf")
+print(f"Uploaded: {result['chunks_created']} chunks created")
+
+answer = query_documents("What is this document about?")
+print(f"Answer: {answer['answer']}")
+print(f"Sources: {answer['source_files']}")
+```
+
+#### **JavaScript/Node.js Integration**
+```javascript
+const axios = require('axios');
+const FormData = require('form-data');
+const fs = require('fs');
+
+const API_BASE = 'http://localhost:8000';
+
+// Upload document
+async function uploadDocument(filePath) {
+    const form = new FormData();
+    form.append('file', fs.createReadStream(filePath));
+    
+    const response = await axios.post(`${API_BASE}/upload`, form, {
+        headers: form.getHeaders()
+    });
+    return response.data;
+}
+
+// Query documents
+async function queryDocuments(question) {
+    const response = await axios.post(`${API_BASE}/query`, {
+        question: question
+    });
+    return response.data;
+}
+
+// Example usage
+async function main() {
+    const uploadResult = await uploadDocument('./document.pdf');
+    console.log(`Uploaded: ${uploadResult.chunks_created} chunks`);
+    
+    const queryResult = await queryDocuments('Summarize the key points');
+    console.log(`Answer: ${queryResult.answer}`);
+}
+```
+
+#### **cURL Batch Processing**
+```bash
+#!/bin/bash
+# batch_upload.sh - Upload multiple documents
+
+API_BASE="http://localhost:8000"
+
+# Upload all PDFs in directory
+for file in *.pdf; do
+    echo "Uploading $file..."
+    curl -X POST "$API_BASE/upload" -F "file=@$file"
+    echo ""
+done
+
+# Query after all uploads
+echo "Querying documents..."
+curl -X POST "$API_BASE/query" \
+  -H "Content-Type: application/json" \
+  -d '{"question": "Provide a summary of all uploaded documents"}'
+```
+
+### **Step 5: Advanced API Features**
+
+#### **Filtered Search (Coming Soon)**
+```bash
+# Search only in specific document types
+curl -X POST "http://localhost:8000/query" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "question": "What are the sales figures?",
+    "filters": {"source_type": "pdf"}
+  }'
+```
+
+#### **Batch Queries**
+```bash
+# Process multiple questions at once
+curl -X POST "http://localhost:8000/batch_query" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "questions": [
+      "What is the main topic?",
+      "Who are the key stakeholders?",
+      "What are the recommendations?"
+    ]
+  }'
+```
+
+### **Step 6: Production Deployment**
+
+For production API deployment:
+
+1. **Use Production WSGI Server:**
+   ```bash
+   pip install gunicorn
+   gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker
+   ```
+
+2. **Configure Environment:**
+   ```bash
+   export DEVICE=cuda
+   export MODEL_NAME=TinyLlama/TinyLlama-1.1B-Chat-v1.0
+   export CHUNK_SIZE=512
+   export TOP_K_RESULTS=5
+   ```
+
+3. **Docker API-Only Deployment:**
+   ```bash
+   docker-compose up --build rag-excel
+   # API available at http://localhost:8000
+   ```
+
+## �🔧 API Reference
 
 ### **Core Endpoints**
 
@@ -325,12 +551,10 @@ RAG_Excel/
 ├── config.py                   # Configuration management
 ├── install.py                  # Automated installation script
 ├── test_api.py                 # API test suite
-├── test_enhanced_ingestion.py  # Enhanced processing test suite
 ├── requirements.txt            # Python dependencies
 ├── Dockerfile                  # Docker configuration
 ├── docker-compose.yml          # Multi-service setup
 ├── README.md                   # This guide
-└── ENHANCED_FEATURES.md        # New features documentation
 ```
 
 
@@ -438,5 +662,5 @@ Modify `config.py` to use different AI models:
 python test_api.py
 ```
 
-**Start by running `python run.py` and then access http://localhost:8501 to upload your first document!** 🚀
+**Start by running `python run.py` and then access http://localhost:8501 to upload your first document!**
 
