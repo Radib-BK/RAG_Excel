@@ -17,6 +17,16 @@ A powerful Retrieval-Augmented Generation (RAG) chatbot that can process multipl
 
 ## 🚀 Quick Start Guide
 
+### **⚠️ IMPORTANT: Before You Start**
+
+**You MUST create a `.env` file** before running the application. This file contains essential configuration including your HuggingFace token.
+
+**Quick Setup:**
+1. 🔑 Get a **free** HuggingFace token: [https://huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
+2. 📁 Create `.env` file in the project root
+3. 📝 Copy the configuration from Step 2 below
+
+---
 
 ### **Method 1: Local Development (Recommended for GPU Users)**
 
@@ -33,7 +43,38 @@ python -m venv .venv
 .venv\Scripts\activate
 ```
 
-#### **Step 2: Install Dependencies**
+#### **Step 2: Create Environment File (REQUIRED)**
+
+**Create a `.env` file in the project root directory:**
+
+```cmd
+# Create .env file (Windows)
+echo. > .env
+
+# OR create manually with any text editor
+notepad .env
+```
+
+**Add this content to your `.env` file:**
+```env
+# Environment variables for the RAG system
+HUGGINGFACE_TOKEN=your_token
+MODEL_NAME=TinyLlama/TinyLlama-1.1B-Chat-v1.0
+EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+VECTOR_STORE_PATH=./vector_store
+CHUNK_SIZE=512
+CHUNK_OVERLAP=100
+TOP_K_RESULTS=5
+MAX_TOKENS=150
+DEVICE=cuda
+```
+
+**🔑 Important Notes:**
+- Replace `your token` with your own [Hugging Face token](https://huggingface.co/settings/tokens)
+- The token is **free** but required for downloading models
+- Keep your token private and don't share it publicly
+
+#### **Step 3: Install Dependencies**
 
 **For GPU Users (RTX 2060/RTX series):**
 ```cmd
@@ -56,11 +97,11 @@ pip install -r requirements.txt
 python install.py
 ```
 
-#### **Step 3: Install Tesseract OCR**
+#### **Step 4: Install Tesseract OCR**
 - **Windows**: Download from [Tesseract GitHub](https://github.com/UB-Mannheim/tesseract/wiki)
 - **Add to PATH**: `C:\Program Files\Tesseract-OCR`
 
-#### **Step 4: Start the Application**
+#### **Step 5: Start the Application**
 
 **Option A: Automatic Launcher (Recommended):**
 ```cmd
@@ -97,9 +138,20 @@ streamlit run streamlit_app.py
 
 **Prerequisites for Docker:**
 ```cmd
-# Create .env file with your HuggingFace token
+# REQUIRED: Create .env file with your HuggingFace token
 echo HUGGINGFACE_TOKEN=your_token_here > .env
+
+# Add other required environment variables
+echo MODEL_NAME=TinyLlama/TinyLlama-1.1B-Chat-v1.0 >> .env
+echo EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2 >> .env
+echo DEVICE=cpu >> .env
+echo MAX_TOKENS=150 >> .env
 ```
+
+**🔑 Get your free HuggingFace token:**
+1. Go to [https://huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
+2. Create a new token (read access is sufficient)
+3. Replace `your_token` with your actual token
 
 #### **Option A: Quick Start (Recommended)**
 ```cmd
@@ -610,7 +662,24 @@ Modify `config.py` to use different AI models:
    .venv\Scripts\activate
    ```
 
-2. **Install Dependencies:**
+2. **⚠️ CRITICAL: Create .env file**
+   ```cmd
+   # Create .env file
+   notepad .env
+   
+   # Add this content (replace with your HuggingFace token):
+   HUGGINGFACE_TOKEN=your_token_here
+   MODEL_NAME=TinyLlama/TinyLlama-1.1B-Chat-v1.0
+   EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+   VECTOR_STORE_PATH=./vector_store
+   CHUNK_SIZE=512
+   CHUNK_OVERLAP=100
+   TOP_K_RESULTS=5
+   MAX_TOKENS=150
+   DEVICE=cuda
+   ```
+
+3. **Install Dependencies:**
    
    **For GPU (RTX 2060+):**
    ```cmd
@@ -625,16 +694,16 @@ Modify `config.py` to use different AI models:
    python install.py
    ```
 
-3. **Install Tesseract OCR:**
+4. **Install Tesseract OCR:**
    - Download from [Tesseract GitHub](https://github.com/UB-Mannheim/tesseract/wiki)
    - Add `C:\Program Files\Tesseract-OCR` to PATH
 
-4. **Start the Application:**
+5. **Start the Application:**
    ```cmd
    python run.py
    ```
 
-5. **Access:** http://localhost:8501
+6. **Access:** http://localhost:8501
 
 ### **🐳 Docker Deployment (Easy Setup):**
 
@@ -642,7 +711,12 @@ Modify `config.py` to use different AI models:
    ```cmd
    git clone https://github.com/Radib-BK/RAG_Excel.git
    cd RAG_Excel
+   
+   # CRITICAL: Create .env file first
    echo HUGGINGFACE_TOKEN=your_token_here > .env
+   echo MODEL_NAME=TinyLlama/TinyLlama-1.1B-Chat-v1.0 >> .env
+   echo EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2 >> .env
+   echo DEVICE=cpu >> .env
    ```
 
 2. **Run with Docker:**
