@@ -224,7 +224,7 @@ The system will:
 2. Generate contextual answers using AI
 3. Provide source attribution and confidence scores
 
-## � API-Only Usage (Backend Without Frontend)
+##  API-Only Usage (Backend Without Frontend)
 
 If you want to use only the RAG API without the Streamlit web interface (for integration into your own applications):
 
@@ -471,7 +471,7 @@ For production API deployment:
    # API available at http://localhost:8000
    ```
 
-## �🔧 API Reference
+## 🔧 API Reference
 
 ### **Core Endpoints**
 
